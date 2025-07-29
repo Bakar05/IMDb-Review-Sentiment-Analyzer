@@ -1,0 +1,16 @@
+Requirements for this project:
+ This project does require the following pip-installable libraries:
+     pandas
+     matplotlib
+     vaderSentiment
+
+it also uses the following Python Standard Library modules:
+datetime
+csv
+json
+os
+
+To install required packages, run:
+    pip install pandas matplotlib vaderSentiment
+
+

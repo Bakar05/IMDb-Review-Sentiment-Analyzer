@@ -1,30 +1,77 @@
 # 🎬 IMDb Review Sentiment Analyzer 🎭
 
-A final project for **Harvard's CS50P: Introduction to Programming with Python**, this command-line based tool performs **sentiment analysis** on IMDb reviews using the **VADER** sentiment analysis tool from the Python Standard Library (`nltk`-like scoring approach via `collections.Counter`) and offers basic **data insights and visualization** using `matplotlib`.
+A comprehensive sentiment analysis tool for IMDb movie reviews, developed as a final project for **Harvard's CS50P: Introduction to Programming with Python**.
 
----
+## 📌 Features
 
-## 📌 Description
+- **Data Preprocessing**: Cleans and prepares raw IMDb review data
+- **Sentiment Analysis**: Uses VADER (Valence Aware Dictionary and sEntiment Reasoner)
+- **Interactive CLI**: User-friendly command-line interface
+- **Visualizations**: Multiple plotting options including:
+  - Rating distribution charts
+  - Sentiment heatmaps
+  - Spoiler impact analysis
+  - Word clouds for positive/negative reviews
+- **Progress Logging**: Detailed execution logging
 
-**IMDb Review Sentiment Analyzer** helps analyze thousands of IMDb movie reviews and classify them as positive, negative, or neutral using sentiment scores derived from **VADER** (Valence Aware Dictionary and sEntiment Reasoner) logic.
+## 📦 Installation
 
-Key features include:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/imdb-sentiment-analyzer.git
+   cd imdb-sentiment-analyzer
+   ```
 
-* Load and parse large IMDb review data from a `.json` file.
-* `Preprocess data` keeping relevent collumns 
-* Perform sentiment scoring using a custom analyzer built with `collections.Counter`.
-* Display overall `sentiment distribution`.
-* Visualize results with pie charts using `matplotlib`.
-* `Log progress` through each execution stage in a log file.
+2. Install required dependencies:
+   ```bash
+   pip install pandas matplotlib seaborn wordcloud vaderSentiment
+   ```
 
----
+3. Download the dataset from [Kaggle](https://www.kaggle.com/dsv/1836923) and place it in the project directory as `IMDB_REVIEWS.json`
 
-## 🗃 Dataset
+## Usage
 
-The dataset used is:
+Run the interactive analyzer:
+```bash
+python analyzer.py
+```
 
-📁 `data/IMDB_REVIEW.json`
+The CLI menu offers these options:
+```
+IMDb Review Sentiment Analysis Tool
+1. Preprocess & Load Data
+2. Perform Sentiment Analysis
+3. Plot Rating Distribution (1-10)
+4. Plot Sentiment vs. Rating Heatmap
+5. Analyze Spoiler Impact on Sentiment
+6. Generate Word Clouds (Positive/Negative Reviews)
+7. View Plots at Once
+8. Exit
+```
 
+## 📊 Sample Visualizations
+
+### Rating Distribution
+![Rating Distribution](reviews_per_rating.png)
+
+### Sentiment Heatmap
+![Sentiment Heatmap](Sentiment_vs_rating.png)
+
+### Word Clouds
+![Word Clouds](word_cloud.png)
+
+## 📂 Project Structure
+```
+imdb-sentiment-analyzer/
+├── data/                  # Dataset directory
+│   └── IMDB_REVIEWS.json  # Source dataset (not included in repo)
+├── analyzer.py            # Main analysis script
+├── code_log.txt           # Execution logs
+├── README.md              # Project documentation
+└── *.png                  # Generated visualization files
+```
+
+## 📝 Dataset Information
 Each entry includes:
 
 | Field           | Description                                         |
@@ -59,53 +106,19 @@ author={Enam Biswas},
 year={2021}
 ```
 
----
 
-## ⚙️ Features
+## 🛠 Dependencies
 
-* 📂 **Data Loading**: Reads JSON file and parses review entries.
-* 😃 **Sentiment Analysis**: Classifies review sentiment using rule-based logic.
-* 📊 **Visualization**: Generates chart showing sentiment breakdown.
-* 📜 **Logging**: Logs execution steps and analysis progress to `logfile.txt`.
+- Python 3.8+
+- pandas
+- matplotlib
+- seaborn
+- wordcloud
+- vaderSentiment
 
----
+## Acknowledgments
 
-## 🔍 Example Usage
-
-```bash
-$ python main.py
-```
-
-You will see output like:
-
-```
-[INFO] 2025-Jul-29-14:23:12 - Loading dataset...
-[INFO] 2025-Jul-29-14:23:13 - Performing sentiment analysis...
-[INFO] 2025-Jul-29-14:23:15 - Plotting results...
-[INFO] 2025-Jul-29-14:23:16 - Task Completed Successfully.
-```
-
-📊 A pie chart will pop up showing the distribution of positive, negative, and neutral reviews.
-
----
-
-## 🧪 File Structure
-
-```
-.
-├── data/
-│   └── IMDB_REVIEW.json
-├── main.py                # Main CLI and logic
-├── logfile.txt            # Progress log
-├── requirements.txt       # Python standard libraries (documentation only)
-├── README.md              # You are here
-```
----
-
-## Acknowledgements
-
-* [IMDb](https://www.imdb.com) for providing user-generated content.
-* [Kaggle](https://www.kaggle.com/dsv/1836923) for hosting the dataset.
-* Harvard CS50P for laying the foundation of this project.
-
----
+- Harvard University for CS50P course materials
+- IMDb for user-generated content
+- Kaggle for hosting the dataset
+- NLTK project for VADER sentiment analysis tools

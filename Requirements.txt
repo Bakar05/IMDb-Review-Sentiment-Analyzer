@@ -3,6 +3,8 @@ Requirements for this project:
      pandas
      matplotlib
      vaderSentiment
+     seaborn
+     wordcloud
 
 it also uses the following Python Standard Library modules:
 datetime
@@ -11,6 +13,8 @@ json
 os
 
 To install required packages, run:
-    pip install pandas matplotlib vaderSentiment
+    pip install pandas matplotlib vaderSentiment seaborn wordcloud
+
+also visit the kagell link to download the data and save it in as IMDB_REVIEW the same codespace as the project 
 
 

@@ -23,7 +23,10 @@ def sample_json(tmp_path):
             "review_detail": "It was okay, nothing special..."
         }
     ]
-    file_path = "IMDB_REVIEWS.json"
+    with zipfile.ZipFile('sample.json.zip', 'r') as zip_ref:
+        zip_ref.extractall()
+        
+    file_path = "sample.json"
     pd.DataFrame(data).to_json(file_path, orient="records")
     return str(file_path)
 
@@ -45,3 +48,19 @@ def test_analyze_sentiment(sample_json):
     assert "compound" in analyzed_df.columns
     assert "sentiment" in analyzed_df.columns
     assert analyzed_df["sentiment"].isin(["Positive", "Negative", "Neutral"]).any()
+
+def test_sentiment_analysis_results(sample_json):
+    """Test that sentiment analysis produces expected results."""
+    df = preprocess_imdb_reviews(sample_json)
+    analyzed_df = analyze_sentiment(df)
+    
+    positive_reviews = analyzed_df[analyzed_df['sentiment'] == 'Positive']
+    assert all(positive_reviews['compound'] > 0.05)
+    
+    neutral_reviews = analyzed_df[analyzed_df['sentiment'] == 'Neutral']
+    assert all((neutral_reviews['compound'] >= -0.05) & (neutral_reviews['compound'] <= 0.05))
+    
+    negative_reviews = analyzed_df[analyzed_df['sentiment'] == 'Negative']
+    assert all(negative_reviews['compound'] < -0.05)
+    
+    assert os.path.exists("sentiment_analysis_results.csv")

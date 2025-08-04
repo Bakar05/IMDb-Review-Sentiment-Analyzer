@@ -1,227 +1,154 @@
 # Importing the required libraries
 import pandas as pd
 from datetime import datetime
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import matplotlib.pyplot as plt
 import seaborn as sns
+from wordcloud import WordCloud, STOPWORDS
 import time
 
+# Logging function
 def log_progress(message):
-    """This function logs the mentioned message of a given stage of the code execution to a log file."""
+    """Logs a timestamped message to the code_log.txt file."""
     time_stamp_format = '%Y-%b-%d-%H:%M:%S'
     now = datetime.now()
     time_stamp = now.strftime(time_stamp_format)
-
     with open("code_log.txt", "a") as f:
-        f.write(time_stamp + ' : ' + message + '\n')
+        f.write(f"{time_stamp} : {message}\n")
 
-def preprocess_imdb_reviews(filename):
-    """This function Preprocess IMDb review dataset and log the processing details."""
-    try:
-        df = pd.read_json(filename)
-        df = df[['reviewer', 'movie', 'rating', 'review_summary', 'spoiler_tag', 'review_detail']]
-        df = df.dropna(subset=['review_detail'])
-
-        df['review_detail'] = df['review_detail'].str.lower().str.strip()
-        df['review_detail'] = df['review_detail'].str.replace(r'<.*?>', ' ', regex=True)
-        df['review_detail'] = df['review_detail'].str.replace(r'[^a-z\s]', '', regex=True)
-        df['review_detail'] = df['review_detail'].str.replace(r'\s+', ' ', regex=True)
-
-        df = df.drop_duplicates(subset='review_detail')
-        df = df.reset_index(drop=True)
-
-        output_file = f"preprocessed_{filename.replace('.json', '.csv')}"
-        df.to_csv(output_file, index=False)
-
-        message_1 = "Pre processing performed"
-        message_2 = f"file saved as : {output_file}\n"
-
-        log_progress(message_1)
-        log_progress(message_2)
-
-        print(f"Preprocessing complete. Saved to '{output_file}'")
-        return df
-
-    except Exception as e:
-        print(f"Error: {e}")
-        log_progress(f"Error during preprocessing: {e}")
-        return None
-
-def analyze_sentiment(df, text_col='review_detail'):
-    """This function perform Sentiment analysis using VADER and returns DataFrame"""
-    analyzer = SentimentIntensityAnalyzer()
-
-    sentiments = df[text_col].apply(analyzer.polarity_scores).apply(pd.Series)
-    df = pd.concat([df, sentiments], axis=1)
-
-    df['sentiment'] = pd.cut(df['compound'], bins=[-1, -0.05, 0.05, 1], labels=['Negative', 'Neutral', 'Positive'])
-
-    filename = "sentiment_analysis_results.csv"
-    df.to_csv(filename, index=False)
-    print(f"Saved to ", filename)
-
-    message_1 = "Sentiment Analysis performed"
-    message_2 = f"file saved as : {filename}\n"
-
-    log_progress(message_1)
-    log_progress(message_2)
-    return df
+# Set style for plots
+sns.set_style("whitegrid")
 
 def plot_rating_distribution(df):
-    """Plotting Bar graph of rating and saving as png"""
+    """Plotting bar graph of rating distribution and saving as PNG."""
+    df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
+    
     plt.figure(figsize=(8, 5))
     rating_counts = df['rating'].value_counts().sort_index()
     plt.bar(rating_counts.index, rating_counts.values)
-    plt.title("Review Rating trend")
+    plt.title("Review Rating Trend")
     plt.xlabel("Rating (1-10)")
     plt.ylabel("Total Reviews")
     plt.tight_layout()
-
+    
     figure_name = "reviews_per_rating.png"
     plt.savefig(figure_name, dpi=300, bbox_inches="tight")
-
+    
     plt.show()
-
-    message_1 = "Rating distribution (1-10) plotted"
-    message_2 = f"Figure saved as: {figure_name}\n"
-
-    log_progress(message_1)
-    log_progress(message_2)
+    
+    log_progress("Rating distribution plotted")
+    log_progress(f"Figure saved as: {figure_name}")
 
 def plot_sentiment_heatmap(analyzed_df):
-    """plotting Sentiment vs rating heatmap and saving as png"""
+    """Plotting heatmap of sentiment vs rating and saving as PNG."""
     plt.figure(figsize=(10, 6))
     sentiment_rating = pd.crosstab(analyzed_df['rating'], analyzed_df['sentiment'])
     sns.heatmap(sentiment_rating, annot=True, fmt='d', cmap="YlGnBu")
-    plt.title("Sentiment vs rating")
+    plt.title("Sentiment vs Rating")
     plt.xlabel("Sentiment")
     plt.ylabel("Rating")
     plt.tight_layout()
-
-    figure_name = "Sentiment_vs_rating.png"
+    
+    figure_name = "sentiment_vs_rating.png"
     plt.savefig(figure_name, dpi=300, bbox_inches="tight")
-
+    
     plt.show()
-
-    message_1 = "Sentiment vs. rating heatmap plotted"
-    message_2 = f"figure saved as : {figure_name}\n"
-
-    log_progress(message_1)
-    log_progress(message_2)
+    
+    log_progress("Sentiment vs. rating heatmap plotted")
+    log_progress(f"Figure saved as: {figure_name}")
 
 def plot_spoiler_impact(analyzed_df):
-    """Plotting line graph of Spoiler impact and saving as pngs"""
+    """Plotting boxplot of spoiler tag impact and saving as PNG."""
     plt.figure(figsize=(8, 5))
+
+    if 'spoiler_tag' in analyzed_df.columns:
+        analyzed_df['spoiler_tag'] = analyzed_df['spoiler_tag'].map({0: 'No', 1: 'Yes'})
+        
     sns.boxplot(x='spoiler_tag', y='compound', data=analyzed_df)
     plt.title("Do Spoilers Affect Sentiment?")
     plt.xlabel("Contains Spoiler?")
     plt.ylabel("Sentiment Score")
     plt.tight_layout()
-
+    
     figure_name = "spoiler_impact.png"
     plt.savefig(figure_name, dpi=300, bbox_inches="tight")
-
+    
     plt.show()
-
-    message_1 = "Spoiler impact plotted"
-    message_2 = f"figure saved as : {figure_name}\n"
-
-    log_progress(message_1)
-    log_progress(message_2)
+    
+    log_progress("Spoiler impact plotted")
+    log_progress(f"Figure saved as: {figure_name}")
 
 def view_all_analyses(analyzed_df):
+    """Displays a combined dashboard of all visualizations."""
+    analyzed_df['rating'] = pd.to_numeric(analyzed_df['rating'], errors='coerce')
+    if 'spoiler_tag' in analyzed_df.columns:
+        analyzed_df['spoiler_tag'] = analyzed_df['spoiler_tag'].map({0: 'No', 1: 'Yes'})
+
     plt.figure(figsize=(15, 10))
 
-    # Rating distribution
+    # Subplot 1: Rating distribution
     plt.subplot(2, 2, 1)
     rating_counts = analyzed_df['rating'].value_counts().sort_index()
     sns.barplot(x=rating_counts.index, y=rating_counts.values, palette="viridis")
     plt.title("Reviews per Rating (1-10)")
+    plt.xlabel("Rating")
+    plt.ylabel("Total Reviews")
 
-    # Sentiment heatmap
+    # Subplot 2: Sentiment heatmap
     plt.subplot(2, 2, 2)
     sentiment_rating = pd.crosstab(analyzed_df['rating'], analyzed_df['sentiment'])
     sns.heatmap(sentiment_rating, annot=True, fmt='d', cmap="YlGnBu")
     plt.title("Sentiment per Rating")
+    plt.xlabel("Sentiment")
+    plt.ylabel("Rating")
 
-    # Spoiler impact
-    plt.subplot(2, 2, 3)
+    # Subplot 3: Spoiler impact
+    plt.subplot(2, 1, 2)
     if 'spoiler_tag' in analyzed_df.columns:
         sns.boxplot(x='spoiler_tag', y='compound', data=analyzed_df)
         plt.title("Spoiler Impact on Sentiment")
+        plt.xlabel("Contains Spoiler?")
+        plt.ylabel("Sentiment Score")
     else:
-        plt.text(0.5, 0.5, "No spoiler data", ha='center')
+        plt.text(0.5, 0.5, "No spoiler data available", ha='center')
 
-    message = "displayed dashboard"
-    log_progress(message)
+    plt.tight_layout()
+    plt.savefig("analysis_dashboard.png", dpi=300, bbox_inches='tight')
+    plt.show()
+    
+    log_progress("Displayed full analysis dashboard")
+    log_progress("Dashboard saved as: analysis_dashboard.png")
 
 def interactive_analysis():
-    df = None
-    analyzed_df = None
+    """Main loop for interactive analysis menu."""
+    analyzed_df = pd.read_csv("sentiment_analysis_results.csv")
+    df = pd.read_csv("preprocessed_IMDB_REVIEWS.csv")
 
     while True:
-        """Displays the interactive menu options."""
         print("\nIMDb Review Sentiment Analysis Tool")
-        print("1. Preprocess & Load Data")
-        print("2. Perform Sentiment Analysis")
-        print("3. Plot Rating Distribution (1-10)")
-        print("4. Plot Sentiment vs. Rating Heatmap")
-        print("5. Analyze Spoiler Impact on Sentiment")
-        print("6. View all figures at Once")
-        print("7. Exit")
-        choice = input("Enter your choice (1-9): ").strip()
+        print("1. Plot Rating Distribution (1-10)")
+        print("2. Plot Sentiment vs. Rating Heatmap")
+        print("3. Analyze Spoiler Impact on Sentiment")
+        print("4. View All Figures (Dashboard)")
+        print("5. Exit")
+        choice = input("Enter your choice (1-6): ").strip()
 
         if choice == "1":
-            print("\nPreprocessing data...")
-            df = preprocess_imdb_reviews("IMDB_REVIEWS.json")
-            time.sleep(1)
-
+            plot_rating_distribution(df)
         elif choice == "2":
-            if df is None:
-                print("Error: Load data first (Option 1)!")
-            else:
-                print("\nAnalyzing sentiment...")
-                analyzed_df = (
-                    analyze_sentiment(df))
-            time.sleep(1)
-
+            plot_sentiment_heatmap(analyzed_df)
         elif choice == "3":
-            if df is None:
-                print("Error: No data loaded!")
-            else:
-                plot_rating_distribution(df)
-            time.sleep(1)
-
-        elif choice == "4":
-            if analyzed_df is None:
-                print("Error: Perform sentiment analysis first (Option 2)!")
-            else:
-                plot_sentiment_heatmap(analyzed_df)
-            time.sleep(1)
-
-        elif choice == "5":
-            if analyzed_df is None:
-                print("Error: Perform sentiment analysis first (Option 2)!")
-            elif 'spoiler_tag' not in analyzed_df.columns:
+            if 'spoiler_tag' not in analyzed_df.columns:
                 print("Error: No 'spoiler_tag' column found!")
             else:
                 plot_spoiler_impact(analyzed_df)
-            time.sleep(1)
-
-        elif choice == "6":
-            if analyzed_df is None:
-                print("Error: Perform sentiment analysis first (Option 2)!")
-            else:
-                view_all_analyses(analyzed_df)
-            time.sleep(1)
-
-        elif choice == "7":
+        elif choice == "4":
+            view_all_analyses(analyzed_df)
+        elif choice == "5":
             print("\nExiting...")
             break
-
         else:
-            print("Invalid choice! Please enter 1-8.")
-            time.sleep(1)
+            print("Invalid choice! Please enter a number between 1 and 6.")
+        time.sleep(1)
 
 if __name__ == "__main__":
     interactive_analysis()

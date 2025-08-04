@@ -11,7 +11,6 @@ A comprehensive sentiment analysis tool for IMDb movie reviews, developed as a f
   - Rating distribution charts
   - Sentiment heatmaps
   - Spoiler impact analysis
-  - Word clouds for positive/negative reviews
 - **Progress Logging**: Detailed execution logging
 
 ## 📦 Installation
@@ -24,7 +23,7 @@ A comprehensive sentiment analysis tool for IMDb movie reviews, developed as a f
 
 2. Install required dependencies:
    ```bash
-   pip install pandas matplotlib seaborn wordcloud vaderSentiment
+   pip install pandas matplotlib seaborn vaderSentiment
    ```
 
 3. Download the dataset from [Kaggle](https://www.kaggle.com/dsv/1836923) and place it in the project directory as `IMDB_REVIEWS.json`
